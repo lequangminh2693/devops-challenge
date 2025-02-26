@@ -1,0 +1,139 @@
+### **Steps to Troubleshoot High Memory Usage on the NGINX Load Balancer VM**
+
+Below are the steps to troubleshoot, potential root causes, impacts, and recovery steps.
+
+
+## **Step 1: Verify Memory Usage**
+1. **Check Memory Usage**:
+   - Use the `free -h` command to confirm memory usage.
+   - Use `top` or `htop` to identify processes consuming the most memory.
+
+2. **Check NGINX Memory Usage**:
+   - Use `ps aux | grep nginx` to check memory usage by NGINX worker processes.
+   - NGINX typically uses minimal memory per worker (e.g., 10-20MB). If memory usage is abnormally high, it could indicate a misconfiguration or issue.
+
+
+## **Step 2: Check NGINX Configuration**
+1. **Review NGINX Configuration**:
+   - Inspect the NGINX configuration file (`/etc/nginx/nginx.conf`) for misconfigurations.
+   - Look for:
+     - High `worker_connections` values.
+     - Excessive caching configurations.
+     - Large buffer sizes (e.g., `proxy_buffer_size`, `client_body_buffer_size`).
+
+2. **Check Open File Descriptors**:
+   - Use `lsof -p <nginx_pid>` to check the number of open file descriptors.
+   - If the number is excessively high, it could indicate a resource leak.
+
+
+## **Step 3: Check System Logs**
+1. **Review System Logs**:
+   - Check `/var/log/syslog` or `/var/log/messages` for memory-related errors or warnings.
+   - Look for OOM (Out of Memory) killer logs.
+
+2. **Review NGINX Logs**:
+   - Check `/var/log/nginx/error.log` for errors or warnings.
+   - Look for signs of excessive requests or upstream failures.
+
+
+## **Step 4: Check Traffic Patterns**
+1. **Analyze Traffic**:
+   - Use `nginx -T` to check active connections (`active_connections`).
+   - Use `netstat` or `ss` to monitor incoming connections.
+   - Use tools like `iftop` or `nload` to analyze network traffic.
+
+2. **Check for DDoS or High Traffic**:
+   - If traffic is abnormally high, it could overwhelm NGINX and cause high memory usage.
+
+
+## **Step 5: Check for Resource Leaks**
+1. **Inspect NGINX Workers**:
+   - Use `strace -p <nginx_worker_pid>` to trace system calls and identify potential leaks.
+   - Look for repeated allocations or unclosed file descriptors.
+
+2. **Check for Zombie Processes**:
+   - Use `ps aux | grep Z` to check for zombie processes.
+   - Zombie processes can consume memory and resources.
+
+
+## **Step 6: Check for External Factors**
+1. **Inspect Upstream Services**:
+   - If upstream services are slow or unresponsive, NGINX may buffer responses, leading to high memory usage.
+   - Use `curl` or `nginx -t` to test upstream connectivity.
+
+2. **Check for Malicious Activity**:
+   - Inspect logs for signs of brute force attacks or malicious requests.
+   - Use tools like `fail2ban` to block suspicious IPs.
+
+
+## **Potential Root Causes, Impacts, and Recovery Steps**
+
+### **1. Misconfigured NGINX**
+- **Cause**:
+  - High `worker_connections` or excessive buffer sizes.
+  - Improper caching configurations.
+- **Impact**:
+  - NGINX consumes more memory than necessary, leading to high memory usage.
+- **Recovery**:
+  - Adjust `worker_connections` and buffer sizes in the NGINX configuration.
+  - Restart NGINX: `sudo systemctl restart nginx`.
+
+
+### **2. High Traffic or DDoS Attack**
+- **Cause**:
+  - Sudden spike in traffic or a DDoS attack.
+- **Impact**:
+  - NGINX struggles to handle the load, leading to high memory usage and potential service degradation.
+- **Recovery**:
+  - Implement rate limiting in NGINX:
+    ```nginx
+    limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+    ```
+  - Use a CDN or WAF (e.g., AWS WAF, Cloudflare) to mitigate DDoS attacks.
+
+
+### **3. Resource Leaks in NGINX**
+- **Cause**:
+  - Memory or file descriptor leaks in NGINX.
+- **Impact**:
+  - Memory usage grows over time, eventually exhausting system resources.
+- **Recovery**:
+  - Restart NGINX to release leaked resources: `sudo systemctl restart nginx`.
+  - Upgrade to the latest stable version of NGINX to fix known bugs.
+
+
+### **4. Upstream Service Issues**
+- **Cause**:
+  - Upstream services are slow or unresponsive, causing NGINX to buffer responses.
+- **Impact**:
+  - NGINX buffers consume memory, leading to high memory usage.
+- **Recovery**:
+  - Optimize upstream services to reduce response times.
+  - Adjust NGINX buffer sizes:
+    ```nginx
+    proxy_buffer_size 4k;
+    proxy_buffers 8 16k;
+    ```
+
+
+### **5. System-Level Issues**
+- **Cause**:
+  - Memory leaks in the kernel or other system processes.
+- **Impact**:
+  - System memory is exhausted, affecting all processes, including NGINX.
+- **Recovery**:
+  - Reboot the VM to clear memory leaks.
+  - Update the kernel and system packages to the latest versions.
+
+
+## **Summary of Troubleshooting Steps**
+
+| **Step**                  | **Action**                                                                 |
+|---------------------------|----------------------------------------------------------------------------|
+| Verify Memory Usage        | Use `free -h`, `top`, and `ps aux`.                                        |
+| Check NGINX Configuration  | Inspect `nginx.conf` for misconfigurations.                                |
+| Check System Logs          | Review `/var/log/syslog` and `/var/log/nginx/error.log`.                   |
+| Analyze Traffic Patterns   | Use `netstat`, `ss`, or `iftop` to monitor traffic.                       |
+| Check for Resource Leaks   | Use `strace` and inspect for zombie processes.                             |
+| Inspect Upstream Services  | Test upstream connectivity and optimize response times.                     |
+| Mitigate Malicious Activity| Use `fail2ban` or a WAF to block suspicious IPs.                           |
