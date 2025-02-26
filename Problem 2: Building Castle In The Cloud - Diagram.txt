@@ -3,7 +3,7 @@ I. Diagram
 |                   |       |                   |       |                   |
 |   Frontend        |<----->|   API Gateway     |<----->|   Order Matching  |
 |   (React/Next.js) |       |   (Kong/Envoy)    |       |   Engine          |
-|                   |       |                   |       |   (Custom C++)    |
+|   [Angular/Vue]   |       |   [AWS API GW/NGINX]     |   [Java/Go]       |
 +-------------------+       +-------------------+       +-------------------+
                                 |       |                       |
                                 |       |                       |
@@ -11,14 +11,14 @@ I. Diagram
 |                   |       |                   |       |                   |
 |   User Management |       |   Message Queue   |       |   Market Data     |
 |   (Auth0/Custom)  |<------|   (Kafka/RabbitMQ)|------>|   Service         |
-|                   |       |                   |       |   (WebSockets)    |
+|   [Cognito/Keycloak]      |   [AWS SQS/PubSub]|       |   [SSE/gRPC]      |
 +-------------------+       +-------------------+       +-------------------+
                                 |       |
 +-------------------+       +---v-------+-------+       +-------------------+
 |                   |       |                   |       |                   |
 |   Wallet Service  |       |   Cache Layer     |       |   Database Layer  |
 |   (Node.js)       |<------|   (Redis)         |<----->|   (PostgreSQL)    |
-|                   |       |                   |       |   (Cassandra)     |
+|   [Python/Go]     |       |   [Memcached]     |       |   [MySQL/Cassandra]|
 +-------------------+       +-------------------+       +-------------------+
 
 II. Architecture Overview
