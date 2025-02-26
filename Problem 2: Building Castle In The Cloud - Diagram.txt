@@ -1,3 +1,4 @@
+I. Diagram
 +-------------------+       +-------------------+       +-------------------+
 |                   |       |                   |       |                   |
 |   Frontend        |<----->|   API Gateway     |<----->|   Order Matching  |
@@ -19,3 +20,26 @@
 |   (Node.js)       |<------|   (Redis)         |<----->|   (PostgreSQL)    |
 |                   |       |                   |       |   (Cassandra)     |
 +-------------------+       +-------------------+       +-------------------+
+
+II. Architecture Overview
+  The system is designed using a microservices architecture to ensure modularity, scalability, and fault tolerance. The architecture is divided into several key components:
+
+    1. Frontend: User interface for trading, account management, and analytics.
+
+    2. API Gateway: Central entry point for all client requests.
+
+    3. Order Matching Engine: Core service for matching buy/sell orders.
+
+    4. User Management: Handles authentication, authorization, and user data.
+
+    5. Wallet Service: Manages cryptocurrency wallets and transactions.
+
+    6. Market Data Service: Provides real-time market data (e.g., prices, order books).
+
+    7. Database Layer: Stores user data, orders, and transaction history.
+
+    8. Cache Layer: Improves performance for frequently accessed data.
+
+    9. Message Queue: Facilitates asynchronous communication between services.
+
+    10. Monitoring and Logging: Ensures observability and fault detection.
